@@ -271,10 +271,17 @@ export default function ProjectsPage() {
                 {user && (
                   <>
                     <button
-                      onClick={() => setIsCreateCompanyModalOpen(true)}
+                      onClick={() => router.push("/companies")}
                       className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
                     >
                       <Building2 className="h-4 w-4" />
+                      <span className="font-inter text-sm">Компании</span>
+                    </button>
+                    <button
+                      onClick={() => setIsCreateCompanyModalOpen(true)}
+                      className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                    >
+                      <Plus className="h-4 w-4" />
                       <span className="font-inter text-sm">Новая компания</span>
                     </button>
                     <button
