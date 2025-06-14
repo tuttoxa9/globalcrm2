@@ -186,7 +186,7 @@ export default function CompanyRequestsPage() {
       >
         {/* Header */}
         <motion.header
-          className="flex items-center justify-between px-6 py-4"
+          className="mx-auto max-w-4xl flex items-center justify-between px-6 py-4"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
@@ -210,7 +210,7 @@ export default function CompanyRequestsPage() {
 
         {/* Stats - показываем только принятые заявки */}
         <motion.div
-          className="mx-6 mb-6 grid grid-cols-2 gap-4"
+          className="mx-auto max-w-4xl px-6 mb-6 grid grid-cols-2 gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
@@ -228,7 +228,7 @@ export default function CompanyRequestsPage() {
         {/* Убираем фильтры - показываем только принятые */}
 
         {/* Requests List */}
-        <div className="px-6 pb-6">
+        <div className="mx-auto max-w-4xl px-6 pb-6">
           {filteredRequests.length > 0 ? (
             <div className="space-y-4">
               {filteredRequests.map((request, index) => {
