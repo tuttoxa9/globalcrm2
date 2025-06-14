@@ -32,6 +32,49 @@ export interface UnicRequest {
   comment?: string
 }
 
+export interface UnicStatistics {
+  total: {
+    all: number
+    new: number
+    accepted: number
+    rejected: number
+    noAnswer: number
+    acceptanceRate: number
+    rejectionRate: number
+  }
+  today: {
+    count: number
+    new: number
+    accepted: number
+    rejected: number
+  }
+  thisWeek: {
+    count: number
+    new: number
+    accepted: number
+    rejected: number
+  }
+  thisMonth: {
+    count: number
+    new: number
+    accepted: number
+    rejected: number
+  }
+  hourlyStats: Array<{
+    hour: number
+    count: number
+    accepted: number
+    rejected: number
+  }>
+  dailyStats: Array<{
+    date: string
+    count: number
+    accepted: number
+    rejected: number
+    new: number
+  }>
+}
+
 // Получение всех заявок из коллекции "unic"
 export const getUnicRequests = async (): Promise<UnicRequest[]> => {
   try {
@@ -212,7 +255,7 @@ export const subscribeToUnicRequests = (callback: (requests: UnicRequest[]) => v
 }
 
 // Получение статистики
-export const getUnicStatistics = async () => {
+export const getUnicStatistics = async (): Promise<UnicStatistics | null> => {
   try {
     const requests = await getUnicRequests()
     const now = new Date()

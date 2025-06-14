@@ -2,11 +2,13 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { X, TrendingUp, Calendar, Clock, BarChart3, PieChart, Check, XCircle, Phone, Users, Globe, Monitor, Smartphone, Tag, AlertCircle, UserCheck } from "lucide-react"
 
+import { type UnicStatistics, type UnicRequest } from "@/lib/unic-firestore"
+
 interface AdvancedStatsModalProps {
   isOpen: boolean
   onClose: () => void
-  statistics: any
-  requests?: any[]
+  statistics: UnicStatistics | null
+  requests?: UnicRequest[]
 }
 
 export default function AdvancedStatsModal({ isOpen, onClose, statistics, requests = [] }: AdvancedStatsModalProps) {

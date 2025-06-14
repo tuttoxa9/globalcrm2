@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowLeft, Phone, Check, XCircle, RefreshCw, TrendingUp, Calculator, Plus } from "lucide-react"
+import { ArrowLeft, Phone, Check, XCircle, TrendingUp, Calculator, Plus, Building2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import DateGroupedRequests from "@/components/date-grouped-requests"
@@ -11,9 +11,10 @@ import AdvancedStatsModal from "@/components/advanced-stats-modal"
 import EnhancedStatsModal from "@/components/enhanced-stats-modal"
 import CalculationPanel from "@/components/calculation-panel"
 import ManualRequestPanel from "@/components/manual-request-panel"
+import CompanyFilterPanel from "@/components/company-filter-panel"
 import { useAuth } from "@/hooks/useAuth"
 import { getProjects, type Project } from "@/lib/firestore"
-import { getUnicRequests, getUnicStatistics, subscribeToUnicRequests, type UnicRequest } from "@/lib/unic-firestore"
+import { getUnicRequests, getUnicStatistics, subscribeToUnicRequests, type UnicRequest, type UnicStatistics } from "@/lib/unic-firestore"
 
 export default function ProjectPage() {
   const params = useParams()
@@ -21,7 +22,7 @@ export default function ProjectPage() {
   const { user } = useAuth()
   const [project, setProject] = useState<Project | null>(null)
   const [requests, setRequests] = useState<UnicRequest[]>([])
-  const [statistics, setStatistics] = useState<any>(null)
+  const [statistics, setStatistics] = useState<UnicStatistics | null>(null)
   const [loading, setLoading] = useState(true)
   const [isUnansweredOpen, setIsUnansweredOpen] = useState(false)
   const [isAcceptedOpen, setIsAcceptedOpen] = useState(false)
@@ -32,6 +33,7 @@ export default function ProjectPage() {
   const [isEnhancedStatsOpen, setIsEnhancedStatsOpen] = useState(false)
   const [isCalculationOpen, setIsCalculationOpen] = useState(false)
   const [isManualRequestOpen, setIsManualRequestOpen] = useState(false)
+  const [isCompanyFilterOpen, setIsCompanyFilterOpen] = useState(false)
 
   // Load initial data
   useEffect(() => {
@@ -294,6 +296,15 @@ export default function ProjectPage() {
             <Calculator className="h-5 w-5" />
             <span className="font-inter">Расчёт</span>
           </motion.button>
+
+          <motion.button
+            onClick={() => setIsCompanyFilterOpen(true)}
+            className="w-full flex items-center gap-3 rounded-lg bg-[#4A5568] px-4 py-3 text-[#E5E7EB] transition-all hover:bg-[#374151]"
+            whileTap={{ scale: 0.98 }}
+          >
+            <Building2 className="h-5 w-5" />
+            <span className="font-inter">Компании</span>
+          </motion.button>
         </div>
 
         {/* Compact Statistics at bottom */}
@@ -431,6 +442,12 @@ export default function ProjectPage() {
         onClose={() => setIsManualRequestOpen(false)}
         projectId={params.id as string}
         onRequestAdded={handleRequestAdded}
+      />
+
+      {/* Company Filter Panel */}
+      <CompanyFilterPanel
+        isOpen={isCompanyFilterOpen}
+        onClose={() => setIsCompanyFilterOpen(false)}
       />
     </div>
   )
