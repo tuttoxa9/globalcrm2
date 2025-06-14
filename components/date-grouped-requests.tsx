@@ -455,14 +455,14 @@ export default function DateGroupedRequests({
             </div>
         )
       })}
-    </div>
 
-    {/* Модальное окно выбора компании */}
-    <CompanySelectModal
-      isOpen={showCompanyModal}
-      onClose={handleCloseCompanyModal}
-      onCompanySelect={handleCompanySelect}
-      loading={isUpdating}
-    />
+      {/* Модальное окно выбора компании */}
+      <CompanySelectModal
+        isOpen={showCompanyModal}
+        onClose={handleCloseCompanyModal}
+        onCompanySelect={handleCompanySelect}
+        loading={isUpdating}
+      />
+    </div>
   )
 }
