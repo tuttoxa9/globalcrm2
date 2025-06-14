@@ -7,7 +7,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from "firebase/firestore"
 import { db } from "./firebase"
@@ -79,9 +78,9 @@ export interface UnicStatistics {
 // Получение всех заявок из коллекции "unic"
 export const getUnicRequests = async (): Promise<UnicRequest[]> => {
   try {
-    const q = query(collection(db, "unic"), orderBy("createdAt", "desc"))
+    const q = query(collection(db, "unic"))
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => {
+    const requests = querySnapshot.docs.map((doc) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -104,6 +103,9 @@ export const getUnicRequests = async (): Promise<UnicRequest[]> => {
         comment: data.comment || "",
       }
     }) as UnicRequest[]
+
+    // Сортируем по дате создания на клиенте
+    return requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   } catch (error) {
     console.error("Error getting unic requests:", error)
     return []
@@ -193,9 +195,9 @@ export const getUnicRequestsByCompanyFlexible = async (companyId: string, compan
 // Получение заявок по статусу
 export const getUnicRequestsByStatus = async (status: string): Promise<UnicRequest[]> => {
   try {
-    const q = query(collection(db, "unic"), where("status", "==", status), orderBy("createdAt", "desc"))
+    const q = query(collection(db, "unic"), where("status", "==", status))
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => {
+    const requests = querySnapshot.docs.map((doc) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -217,6 +219,9 @@ export const getUnicRequestsByStatus = async (status: string): Promise<UnicReque
         comment: data.comment || "",
       }
     }) as UnicRequest[]
+
+    // Сортируем по дате создания на клиенте
+    return requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   } catch (error) {
     console.error("Error getting unic requests by status:", error)
     return []
@@ -229,11 +234,10 @@ export const getUnicRequestsByDateRange = async (startDate: Date, endDate: Date)
     const q = query(
       collection(db, "unic"),
       where("createdAt", ">=", startDate),
-      where("createdAt", "<=", endDate),
-      orderBy("createdAt", "desc"),
+      where("createdAt", "<=", endDate)
     )
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => {
+    const requests = querySnapshot.docs.map((doc) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -255,6 +259,9 @@ export const getUnicRequestsByDateRange = async (startDate: Date, endDate: Date)
         comment: data.comment || "",
       }
     }) as UnicRequest[]
+
+    // Сортируем по дате создания на клиенте
+    return requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   } catch (error) {
     console.error("Error getting unic requests by date range:", error)
     return []
@@ -310,7 +317,7 @@ export const deleteUnicRequest = async (requestId: string) => {
 
 // Подписка на изменения в реальном времени
 export const subscribeToUnicRequests = (callback: (requests: UnicRequest[]) => void) => {
-  const q = query(collection(db, "unic"), orderBy("createdAt", "desc"))
+  const q = query(collection(db, "unic"))
 
   return onSnapshot(
     q,
@@ -338,7 +345,9 @@ export const subscribeToUnicRequests = (callback: (requests: UnicRequest[]) => v
         }
       }) as UnicRequest[]
 
-      callback(requests)
+      // Сортируем по дате создания на клиенте
+      const sortedRequests = requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      callback(sortedRequests)
     },
     (error) => {
       console.error("Error in unic requests subscription:", error)

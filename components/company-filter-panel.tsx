@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Building2, Search, Download, FileSpreadsheet } from "lucide-react"
-import { getCompanies, getRequestsByCompany, type Company, type Request } from "@/lib/firestore"
+import { getCompanies, type Company } from "@/lib/firestore"
+import { getUnicRequestsByCompanyFlexible, type UnicRequest } from "@/lib/unic-firestore"
 import { useAuth } from "@/hooks/useAuth"
 import * as XLSX from "xlsx"
 
@@ -16,11 +17,12 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
   const { user } = useAuth()
   const [companies, setCompanies] = useState<Company[]>([])
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
-  const [companyRequests, setCompanyRequests] = useState<Request[]>([])
-  const [filteredRequests, setFilteredRequests] = useState<Request[]>([])
+  const [companyRequests, setCompanyRequests] = useState<UnicRequest[]>([])
+  const [filteredRequests, setFilteredRequests] = useState<UnicRequest[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [loading, setLoading] = useState(true)
   const [requestsLoading, setRequestsLoading] = useState(false)
+  const [requestCounts, setRequestCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     const loadCompanies = async () => {
@@ -30,6 +32,22 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
       try {
         const userCompanies = await getCompanies(user.uid)
         setCompanies(userCompanies)
+
+        // Загружаем количество заявок для каждой компании
+        const counts: Record<string, number> = {}
+        await Promise.all(
+          userCompanies.map(async (company) => {
+            try {
+              const requests = await getUnicRequestsByCompanyFlexible(company.id, company.name)
+              counts[company.id] = requests.length
+              console.log(`Company ${company.name} (${company.id}): found ${requests.length} requests`)
+            } catch (error) {
+              console.error(`Error loading requests for company ${company.name}:`, error)
+              counts[company.id] = 0
+            }
+          })
+        )
+        setRequestCounts(counts)
       } catch (error) {
         console.error("Error loading companies:", error)
       } finally {
@@ -50,7 +68,8 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
 
       setRequestsLoading(true)
       try {
-        const requests = await getRequestsByCompany(selectedCompany.id)
+        const requests = await getUnicRequestsByCompanyFlexible(selectedCompany.id, selectedCompany.name)
+        console.log(`Loading requests for company ${selectedCompany.name} (${selectedCompany.id}): found ${requests.length} requests`)
         setCompanyRequests(requests)
         setFilteredRequests(requests)
       } catch (error) {
@@ -70,10 +89,9 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
     }
 
     const filtered = companyRequests.filter(request =>
-      request.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       request.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.phoneNumber?.includes(searchQuery) ||
-      request.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      request.phone?.includes(searchQuery) ||
+      request.comment?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     setFilteredRequests(filtered)
   }, [searchQuery, companyRequests])
@@ -84,13 +102,14 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
     const workbook = XLSX.utils.book_new()
 
     const data = filteredRequests.map(request => ({
-      "Заголовок": request.title || "",
       "ФИО": request.fullName || "",
-      "Телефон": request.phoneNumber || "",
-      "Дата рождения": request.birthDate ? new Intl.DateTimeFormat("ru-RU").format(request.birthDate) : "",
-      "Описание": request.description || "",
+      "Телефон": request.phone || "",
+      "Дата рождения": request.birthDate || "",
+      "Комментарий": request.comment || "",
       "Статус": request.status === "new" ? "Новая" :
-                request.status === "accepted" ? "Принята" : "Отклонена",
+                request.status === "accepted" ? "Принята" :
+                request.status === "rejected" ? "Отклонена" :
+                request.status === "no_answer" ? "Не ответили" : "Неизвестно",
       "Дата создания": new Intl.DateTimeFormat("ru-RU", {
         day: "2-digit",
         month: "2-digit",
@@ -121,6 +140,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
       case "new": return "bg-[#3B82F6]"
       case "accepted": return "bg-[#10B981]"
       case "rejected": return "bg-[#EF4444]"
+      case "no_answer": return "bg-[#F59E0B]"
       default: return "bg-[#6B7280]"
     }
   }
@@ -130,6 +150,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
       case "new": return "Новая"
       case "accepted": return "Принята"
       case "rejected": return "Отклонена"
+      case "no_answer": return "Не ответили"
       default: return "Неизвестно"
     }
   }
@@ -202,7 +223,12 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                               onClick={() => setSelectedCompany(company)}
                               className="w-full text-left p-3 rounded-lg bg-[#374151] text-[#E5E7EB] hover:bg-[#4B5563] transition-colors"
                             >
-                              <div className="font-medium">{company.name}</div>
+                              <div className="flex items-center justify-between">
+                                <div className="font-medium">{company.name}</div>
+                                <span className="text-xs bg-[#10B981] text-white px-2 py-1 rounded">
+                                  {requestCounts[company.id] || 0} заявок
+                                </span>
+                              </div>
                               <div className="text-xs text-[#9CA3AF] mt-1">
                                 Создана: {formatDate(company.createdAt)}
                               </div>
@@ -274,22 +300,28 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                                 >
                                   <div className="flex items-start justify-between mb-2">
                                     <h4 className="text-sm font-medium text-[#E5E7EB] line-clamp-1">
-                                      {request.title}
+                                      {request.fullName || "Без имени"}
                                     </h4>
                                     <span className={`px-2 py-1 text-xs rounded text-white ${getStatusColor(request.status)}`}>
                                       {getStatusText(request.status)}
                                     </span>
                                   </div>
 
-                                  {request.fullName && (
-                                    <div className="text-sm text-[#CBD5E0] mb-1">
-                                      {request.fullName}
+                                  {request.phone && (
+                                    <div className="text-sm text-[#9CA3AF] mb-1">
+                                      📞 {request.phone}
                                     </div>
                                   )}
 
-                                  {request.phoneNumber && (
+                                  {request.birthDate && (
                                     <div className="text-sm text-[#9CA3AF] mb-1">
-                                      {request.phoneNumber}
+                                      🎂 {request.birthDate}
+                                    </div>
+                                  )}
+
+                                  {request.comment && (
+                                    <div className="text-sm text-[#CBD5E0] mb-1">
+                                      💬 {request.comment}
                                     </div>
                                   )}
 
