@@ -54,7 +54,7 @@ export default function UnansweredPanel({ isOpen, onClose, requests, onAction }:
 
           {/* Panel */}
           <motion.div
-            className="fixed right-0 top-0 z-50 h-full w-96 bg-[#1F2937] shadow-2xl"
+            className="fixed right-0 top-0 z-50 h-full w-full sm:w-96 max-w-[90vw] bg-[#1F2937] shadow-2xl"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

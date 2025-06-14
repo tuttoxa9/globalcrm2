@@ -131,7 +131,7 @@ export default function CalculationPanel({ isOpen, onClose, requests }: Calculat
       animate={{ x: 0 }}
       exit={{ x: "100%" }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed right-0 top-0 z-50 h-full w-[500px] bg-[#1F2937] border-l border-[#374151] shadow-xl overflow-y-auto"
+      className="fixed right-0 top-0 z-50 h-full w-full sm:w-[500px] max-w-[90vw] bg-[#1F2937] border-l border-[#374151] shadow-xl overflow-y-auto"
     >
       {/* Header */}
       <div className="border-b border-[#374151] p-6">

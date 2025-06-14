@@ -223,7 +223,7 @@ export default function ProcessedRequestsPanel({ isOpen, onClose, requests, type
 
           {/* Panel */}
           <motion.div
-            className="fixed left-0 top-0 z-50 h-full w-[480px] bg-[#1F2937] shadow-2xl"
+            className="fixed left-0 top-0 z-50 h-full w-full sm:w-[480px] max-w-[90vw] bg-[#1F2937] shadow-2xl"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
