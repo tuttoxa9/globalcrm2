@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Plus, User, Phone, Calendar, FileText, Loader2 } from "lucide-react"
-import { addRequest } from "@/lib/firestore"
+import { X, Plus, User, Phone, Calendar, Loader2 } from "lucide-react"
+import { addUnicRequest } from "@/lib/unic-firestore"
 
 interface ManualRequestPanelProps {
   isOpen: boolean
@@ -14,10 +14,8 @@ interface ManualRequestPanelProps {
 
 export default function ManualRequestPanel({ isOpen, onClose, projectId, onRequestAdded }: ManualRequestPanelProps) {
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
     fullName: "",
-    phoneNumber: "",
+    phone: "",
     birthDate: "",
   })
   const [loading, setLoading] = useState(false)
@@ -29,24 +27,22 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
     setError("")
 
     try {
-      const { id, error: addError } = await addRequest({
-        projectId,
-        title: formData.title.trim(),
-        description: formData.description.trim(),
+      const { id, error: addError } = await addUnicRequest({
         fullName: formData.fullName.trim(),
-        phoneNumber: formData.phoneNumber.trim(),
-        birthDate: formData.birthDate ? new Date(formData.birthDate) : undefined,
+        phone: formData.phone.trim(),
+        birthDate: formData.birthDate,
         status: "new",
         createdAt: new Date(),
         updatedAt: new Date(),
+        // Для совместимости со старыми компонентами
+        title: formData.fullName.trim(),
+        clientName: formData.fullName.trim(),
       })
 
       if (id) {
         setFormData({
-          title: "",
-          description: "",
           fullName: "",
-          phoneNumber: "",
+          phone: "",
           birthDate: "",
         })
         onRequestAdded()
@@ -63,10 +59,8 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
 
   const handleClose = () => {
     setFormData({
-      title: "",
-      description: "",
       fullName: "",
-      phoneNumber: "",
+      phone: "",
       birthDate: "",
     })
     setError("")
@@ -116,46 +110,12 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
               {/* Form */}
               <div className="flex-1 overflow-y-auto p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Title */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#D1D5DB] mb-2">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        Заголовок заявки *
-                      </div>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full rounded-lg bg-[#374151] px-3 py-2 text-[#E5E7EB] outline-none transition-all duration-200 focus:ring-2 focus:ring-[#3B82F6] font-inter"
-                      placeholder="Введите заголовок"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium text-[#D1D5DB] mb-2">
-                      Описание
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full rounded-lg bg-[#374151] px-3 py-2 text-[#E5E7EB] outline-none transition-all duration-200 focus:ring-2 focus:ring-[#3B82F6] font-inter resize-none"
-                      placeholder="Введите описание заявки"
-                      rows={3}
-                      disabled={loading}
-                    />
-                  </div>
-
                   {/* Full Name */}
                   <div>
                     <label className="block text-sm font-medium text-[#D1D5DB] mb-2">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
-                        ФИО
+                        ФИО *
                       </div>
                     </label>
                     <input
@@ -164,6 +124,7 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
                       onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                       className="w-full rounded-lg bg-[#374151] px-3 py-2 text-[#E5E7EB] outline-none transition-all duration-200 focus:ring-2 focus:ring-[#3B82F6] font-inter"
                       placeholder="Введите ФИО"
+                      required
                       disabled={loading}
                     />
                   </div>
@@ -173,15 +134,16 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
                     <label className="block text-sm font-medium text-[#D1D5DB] mb-2">
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4" />
-                        Номер телефона
+                        Номер телефона *
                       </div>
                     </label>
                     <input
                       type="tel"
-                      value={formData.phoneNumber}
-                      onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full rounded-lg bg-[#374151] px-3 py-2 text-[#E5E7EB] outline-none transition-all duration-200 focus:ring-2 focus:ring-[#3B82F6] font-inter"
                       placeholder="+7 (999) 123-45-67"
+                      required
                       disabled={loading}
                     />
                   </div>
@@ -191,7 +153,7 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
                     <label className="block text-sm font-medium text-[#D1D5DB] mb-2">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
-                        Дата рождения
+                        Дата рождения *
                       </div>
                     </label>
                     <input
@@ -199,6 +161,7 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
                       value={formData.birthDate}
                       onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
                       className="w-full rounded-lg bg-[#374151] px-3 py-2 text-[#E5E7EB] outline-none transition-all duration-200 focus:ring-2 focus:ring-[#3B82F6] font-inter"
+                      required
                       disabled={loading}
                     />
                   </div>
@@ -225,7 +188,7 @@ export default function ManualRequestPanel({ isOpen, onClose, projectId, onReque
                   <button
                     onClick={handleSubmit}
                     className="flex-1 rounded-lg bg-[#3B82F6] py-2 text-sm font-medium text-white transition-colors hover:bg-[#2563EB] disabled:opacity-50 font-inter"
-                    disabled={loading || !formData.title.trim()}
+                    disabled={loading || !formData.fullName.trim() || !formData.phone.trim() || !formData.birthDate}
                   >
                     {loading ? (
                       <Loader2 className="mx-auto h-4 w-4 animate-spin" />
