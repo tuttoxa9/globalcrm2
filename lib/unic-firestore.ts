@@ -26,6 +26,7 @@ export interface UnicRequest {
   priority?: "low" | "medium" | "high"
   assignedTo?: string
   tags?: string[]
+  companyId?: string  // ID компании
   // Дополнительные поля для совместимости
   title?: string
   clientName?: string
@@ -96,6 +97,7 @@ export const getUnicRequests = async (): Promise<UnicRequest[]> => {
         priority: data.priority || "medium",
         assignedTo: data.assignedTo || "",
         tags: data.tags || [],
+        companyId: data.companyId || "",
         // Для совместимости со старыми компонентами
         title: data.title || data.fullName || "",
         clientName: data.fullName || data.clientName || "",
@@ -129,6 +131,7 @@ export const getUnicRequestsByStatus = async (status: string): Promise<UnicReque
         priority: data.priority || "medium",
         assignedTo: data.assignedTo || "",
         tags: data.tags || [],
+        companyId: data.companyId || "",
         title: data.title || data.fullName || "",
         clientName: data.fullName || data.clientName || "",
         comment: data.comment || "",
@@ -166,6 +169,7 @@ export const getUnicRequestsByDateRange = async (startDate: Date, endDate: Date)
         priority: data.priority || "medium",
         assignedTo: data.assignedTo || "",
         tags: data.tags || [],
+        companyId: data.companyId || "",
         title: data.title || data.fullName || "",
         clientName: data.fullName || data.clientName || "",
         comment: data.comment || "",
@@ -195,12 +199,19 @@ export const addUnicRequest = async (request: Omit<UnicRequest, "id">) => {
 export const updateUnicRequestStatus = async (
   requestId: string,
   status: "new" | "accepted" | "rejected" | "no_answer",
+  companyId?: string
 ) => {
   try {
-    await updateDoc(doc(db, "unic", requestId), {
+    const updateData: any = {
       status,
       updatedAt: new Date(),
-    })
+    }
+
+    if (companyId) {
+      updateData.companyId = companyId
+    }
+
+    await updateDoc(doc(db, "unic", requestId), updateData)
     return { error: null }
   } catch (error: any) {
     return { error: error.message }
@@ -240,6 +251,7 @@ export const subscribeToUnicRequests = (callback: (requests: UnicRequest[]) => v
           priority: data.priority || "medium",
           assignedTo: data.assignedTo || "",
           tags: data.tags || [],
+          companyId: data.companyId || "",
           title: data.title || data.fullName || "",
           clientName: data.fullName || data.clientName || "",
           comment: data.comment || "",

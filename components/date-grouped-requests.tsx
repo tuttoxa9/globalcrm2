@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react"
 import { type UnicRequest, updateUnicRequestStatus, deleteUnicRequest } from "@/lib/unic-firestore"
+import CompanySelectModal from "./company-select-modal"
 
 interface DateGroupedRequestsProps {
   requests: UnicRequest[]
@@ -33,6 +34,8 @@ export default function DateGroupedRequests({
 }: DateGroupedRequestsProps) {
   const [isUpdating, setIsUpdating] = useState(false)
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set())
+  const [showCompanyModal, setShowCompanyModal] = useState(false)
+  const [requestToAccept, setRequestToAccept] = useState<string | null>(null)
 
   // Функция для безопасного получения значений
   const safeString = (value: any): string => {
@@ -66,6 +69,13 @@ export default function DateGroupedRequests({
   const handleStatusChange = async (requestId: string, newStatus: "accepted" | "rejected" | "no_answer") => {
     if (isUpdating) return
 
+    // Если статус "accepted", открываем модальное окно выбора компании
+    if (newStatus === "accepted") {
+      setRequestToAccept(requestId)
+      setShowCompanyModal(true)
+      return
+    }
+
     setIsUpdating(true)
     try {
       const { error } = await updateUnicRequestStatus(requestId, newStatus)
@@ -79,6 +89,31 @@ export default function DateGroupedRequests({
     } finally {
       setIsUpdating(false)
     }
+  }
+
+  const handleCompanySelect = async (companyId: string) => {
+    if (!requestToAccept) return
+
+    setIsUpdating(true)
+    try {
+      const { error } = await updateUnicRequestStatus(requestToAccept, "accepted", companyId)
+      if (!error) {
+        onRequestUpdate()
+        setShowCompanyModal(false)
+        setRequestToAccept(null)
+      } else {
+        console.error("Error updating request status:", error)
+      }
+    } catch (error) {
+      console.error("Error updating request status:", error)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleCloseCompanyModal = () => {
+    setShowCompanyModal(false)
+    setRequestToAccept(null)
   }
 
   const handleDeleteRequest = async (requestId: string) => {
@@ -421,5 +456,13 @@ export default function DateGroupedRequests({
         )
       })}
     </div>
+
+    {/* Модальное окно выбора компании */}
+    <CompanySelectModal
+      isOpen={showCompanyModal}
+      onClose={handleCloseCompanyModal}
+      onCompanySelect={handleCompanySelect}
+      loading={isUpdating}
+    />
   )
 }
