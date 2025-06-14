@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { LogOut, Plus, Building2, Edit, Trash2, ArrowLeft } from "lucide-react"
+import { LogOut, Plus, Building2, Edit, Trash2, ArrowLeft, Users } from "lucide-react"
 import { useState, useEffect } from "react"
 import BackgroundBlob from "@/components/background-blob"
 import CreateCompanyModal from "@/components/create-company-modal"
@@ -194,14 +194,23 @@ export default function CompaniesPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
+                      onClick={() => router.push(`/companies/${company.id}/requests`)}
+                      className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#374151] text-[#6B7280] transition-colors hover:bg-[#4B5563] hover:text-[#E5E7EB]"
+                      title="Просмотр заявок"
+                    >
+                      <Users className="h-4 w-4" />
+                    </button>
+                    <button
                       onClick={() => setEditingCompany(company)}
                       className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#374151] text-[#6B7280] transition-colors hover:bg-[#4B5563] hover:text-[#E5E7EB]"
+                      title="Редактировать"
                     >
                       <Edit className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteCompany(company)}
                       className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#374151] text-[#6B7280] transition-colors hover:bg-[#DC2626] hover:text-white"
+                      title="Удалить"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

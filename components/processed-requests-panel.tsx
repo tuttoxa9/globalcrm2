@@ -19,9 +19,12 @@ import {
   AppleIcon as Safari,
   RotateCcw,
   Trash2,
+  Building2,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { updateUnicRequestStatus, deleteUnicRequest } from "@/lib/unic-firestore"
+import { getCompanies, type Company } from "@/lib/firestore"
+import { useAuth } from "@/hooks/useAuth"
 
 interface Request {
   id: string
@@ -34,6 +37,7 @@ interface Request {
   source?: string
   referrer?: string
   userAgent?: string
+  companyId?: string  // ID компании
   // Для совместимости
   projectId?: string
   title?: string
@@ -50,8 +54,23 @@ interface ProcessedRequestsPanelProps {
 }
 
 export default function ProcessedRequestsPanel({ isOpen, onClose, requests, type, onRequestUpdate }: ProcessedRequestsPanelProps) {
+  const { user } = useAuth()
   const [searchQuery, setSearchQuery] = useState("")
   const [isUpdating, setIsUpdating] = useState(false)
+  const [companies, setCompanies] = useState<Company[]>([])
+
+  useEffect(() => {
+    const loadCompanies = async () => {
+      if (user) {
+        const userCompanies = await getCompanies(user.uid)
+        setCompanies(userCompanies)
+      }
+    }
+
+    if (isOpen) {
+      loadCompanies()
+    }
+  }, [user, isOpen])
 
   const filteredRequests = requests
     .filter((r) => r.status === type)
@@ -178,6 +197,11 @@ export default function ProcessedRequestsPanel({ isOpen, onClose, requests, type
     } catch {
       return url
     }
+  }
+
+  const getCompanyName = (companyId: string) => {
+    const company = companies.find(c => c.id === companyId)
+    return company ? company.name : "Неизвестная компания"
   }
 
   const title = type === "accepted" ? "Принятые заявки" : "Отказанные заявки"
@@ -321,6 +345,13 @@ export default function ProcessedRequestsPanel({ isOpen, onClose, requests, type
                               <div className="flex items-center gap-2 text-sm text-[#CBD5E0]">
                                 <Cake className="h-3 w-3 flex-shrink-0 text-[#F59E0B]" />
                                 <span className="font-inter">{formatBirthDate(request.birthDate)}</span>
+                              </div>
+                            )}
+
+                            {request.companyId && (
+                              <div className="flex items-center gap-2 text-sm text-[#CBD5E0]">
+                                <Building2 className="h-3 w-3 flex-shrink-0 text-[#3B82F6]" />
+                                <span className="font-inter font-medium">{getCompanyName(request.companyId)}</span>
                               </div>
                             )}
                           </div>
