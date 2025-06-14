@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import BackgroundBlob from "@/components/background-blob"
 import { useAuth } from "@/hooks/useAuth"
-import { getUnicRequestsByCompanyFlexible, type UnicRequest } from "@/lib/unic-firestore"
+import { getAcceptedUnicRequestsByCompanyFlexible, type UnicRequest } from "@/lib/unic-firestore"
 import { getCompanies, type Company } from "@/lib/firestore"
 
 export default function CompanyRequestsPage() {
@@ -17,7 +17,7 @@ export default function CompanyRequestsPage() {
   const [company, setCompany] = useState<Company | null>(null)
   const [requestsLoading, setRequestsLoading] = useState(true)
   const [isPageLoading, setIsPageLoading] = useState(true)
-  const [filter, setFilter] = useState<"all" | "accepted" | "rejected" | "new">("all")
+  const [filter, setFilter] = useState<"accepted">("accepted")
 
   useEffect(() => {
     const loadData = async () => {
@@ -29,8 +29,8 @@ export default function CompanyRequestsPage() {
           const currentCompany = userCompanies.find(c => c.id === companyId)
           setCompany(currentCompany || null)
 
-          // Загружаем заявки компании
-          const companyRequests = await getUnicRequestsByCompanyFlexible(companyId as string, currentCompany?.name)
+          // Загружаем ТОЛЬКО принятые заявки компании
+          const companyRequests = await getAcceptedUnicRequestsByCompanyFlexible(companyId as string, currentCompany?.name)
           setRequests(companyRequests)
         }
       } catch (error) {
@@ -80,8 +80,8 @@ export default function CompanyRequestsPage() {
   }
 
   const filteredRequests = requests.filter(request => {
-    if (filter === "all") return true
-    return request.status === filter
+    // Показываем только принятые заявки
+    return request.status === "accepted"
   })
 
   const getStatusIcon = (status: string) => {
@@ -120,10 +120,10 @@ export default function CompanyRequestsPage() {
   }
 
   const stats = {
-    total: requests.length,
-    accepted: requests.filter(r => r.status === "accepted").length,
-    rejected: requests.filter(r => r.status === "rejected").length,
-    new: requests.filter(r => r.status === "new").length,
+    total: requests.length, // Общее количество принятых заявок
+    accepted: requests.length, // Все загруженные заявки - принятые
+    rejected: 0, // Не показываем отклоненные
+    new: 0, // Не показываем новые
   }
 
   if (loading || requestsLoading) {
@@ -208,57 +208,24 @@ export default function CompanyRequestsPage() {
           </div>
         </motion.header>
 
-        {/* Stats */}
+        {/* Stats - показываем только принятые заявки */}
         <motion.div
-          className="mx-6 mb-6 grid grid-cols-4 gap-4"
+          className="mx-6 mb-6 grid grid-cols-2 gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.5 }}
         >
           <div className="rounded-xl bg-[#1F2937] p-4 text-center">
+            <div className="text-2xl font-bold text-[#10B981] font-inter">{stats.accepted}</div>
+            <div className="text-sm text-[#6B7280] font-inter">Принятых заявок</div>
+          </div>
+          <div className="rounded-xl bg-[#1F2937] p-4 text-center">
             <div className="text-2xl font-bold text-[#E5E7EB] font-inter">{stats.total}</div>
             <div className="text-sm text-[#6B7280] font-inter">Всего</div>
           </div>
-          <div className="rounded-xl bg-[#1F2937] p-4 text-center">
-            <div className="text-2xl font-bold text-[#10B981] font-inter">{stats.accepted}</div>
-            <div className="text-sm text-[#6B7280] font-inter">Принято</div>
-          </div>
-          <div className="rounded-xl bg-[#1F2937] p-4 text-center">
-            <div className="text-2xl font-bold text-[#EF4444] font-inter">{stats.rejected}</div>
-            <div className="text-sm text-[#6B7280] font-inter">Отклонено</div>
-          </div>
-          <div className="rounded-xl bg-[#1F2937] p-4 text-center">
-            <div className="text-2xl font-bold text-[#F59E0B] font-inter">{stats.new}</div>
-            <div className="text-sm text-[#6B7280] font-inter">Новые</div>
-          </div>
         </motion.div>
 
-        {/* Filter Buttons */}
-        <motion.div
-          className="mx-6 mb-6 flex gap-2"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          {[
-            { key: "all", label: "Все", count: stats.total },
-            { key: "new", label: "Новые", count: stats.new },
-            { key: "accepted", label: "Принятые", count: stats.accepted },
-            { key: "rejected", label: "Отклоненные", count: stats.rejected },
-          ].map((filterOption) => (
-            <button
-              key={filterOption.key}
-              onClick={() => setFilter(filterOption.key as "all" | "accepted" | "rejected" | "new")}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors font-inter ${
-                filter === filterOption.key
-                  ? "bg-[#3B82F6] text-white"
-                  : "bg-[#374151] text-[#D1D5DB] hover:bg-[#4B5563]"
-              }`}
-            >
-              {filterOption.label} ({filterOption.count})
-            </button>
-          ))}
-        </motion.div>
+        {/* Убираем фильтры - показываем только принятые */}
 
         {/* Requests List */}
         <div className="px-6 pb-6">
@@ -349,9 +316,7 @@ export default function CompanyRequestsPage() {
             >
               <Users className="h-12 w-12 mx-auto mb-4 text-[#374151]" />
               <p>
-                {filter === "all"
-                  ? "У этой компании пока нет заявок"
-                  : `Нет ${filter === "accepted" ? "принятых" : filter === "rejected" ? "отклоненных" : "новых"} заявок`}
+                У этой компании пока нет принятых заявок
               </p>
             </motion.div>
           )}
