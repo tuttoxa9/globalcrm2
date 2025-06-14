@@ -9,6 +9,7 @@ import EditCompanyModal from "@/components/edit-company-modal"
 import { useAuth } from "@/hooks/useAuth"
 import { signOut } from "@/lib/auth"
 import { getCompanies, deleteCompany, type Company } from "@/lib/firestore"
+import { getUnicRequestsByCompany } from "@/lib/unic-firestore"
 import { useRouter } from "next/navigation"
 
 export default function CompaniesPage() {
@@ -19,6 +20,7 @@ export default function CompaniesPage() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null)
   const [deletingCompany, setDeletingCompany] = useState<Company | null>(null)
   const [isPageLoading, setIsPageLoading] = useState(true)
+  const [requestCounts, setRequestCounts] = useState<Record<string, number>>({})
   const router = useRouter()
 
   useEffect(() => {
@@ -28,6 +30,16 @@ export default function CompaniesPage() {
         if (user) {
           const userCompanies = await getCompanies(user.uid)
           setCompanies(userCompanies)
+
+          // Загружаем количество заявок для каждой компании
+          const counts: Record<string, number> = {}
+          await Promise.all(
+            userCompanies.map(async (company) => {
+              const requests = await getUnicRequestsByCompany(company.id)
+              counts[company.id] = requests.length
+            })
+          )
+          setRequestCounts(counts)
         }
       } catch (error) {
         console.error("Error loading companies:", error)
@@ -54,6 +66,16 @@ export default function CompaniesPage() {
     if (user) {
       const userCompanies = await getCompanies(user.uid)
       setCompanies(userCompanies)
+
+      // Загружаем количество заявок для каждой компании
+      const counts: Record<string, number> = {}
+      await Promise.all(
+        userCompanies.map(async (company) => {
+          const requests = await getUnicRequestsByCompany(company.id)
+          counts[company.id] = requests.length
+        })
+      )
+      setRequestCounts(counts)
     }
   }
 
@@ -61,6 +83,16 @@ export default function CompaniesPage() {
     if (user) {
       const userCompanies = await getCompanies(user.uid)
       setCompanies(userCompanies)
+
+      // Загружаем количество заявок для каждой компании
+      const counts: Record<string, number> = {}
+      await Promise.all(
+        userCompanies.map(async (company) => {
+          const requests = await getUnicRequestsByCompany(company.id)
+          counts[company.id] = requests.length
+        })
+      )
+      setRequestCounts(counts)
     }
     setEditingCompany(null)
   }
@@ -190,6 +222,9 @@ export default function CompaniesPage() {
                       <p className="text-sm text-[#6B7280] font-inter">
                         Создана: {company.createdAt.toLocaleDateString()}
                       </p>
+                      <p className="text-sm text-[#10B981] font-inter mt-1">
+                        Всего заявок: {requestCounts[company.id] || 0}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -275,7 +310,7 @@ export default function CompaniesPage() {
                   Удалить компанию
                 </h3>
                 <p className="mt-2 text-sm text-[#6B7280] font-inter">
-                  Вы уверены, что хотите удалить компанию &quot;{deletingCompany.name}&quot;? Это действие нельзя отменить.
+                  Вы уверены, что хотите удалить компанию &ldquo;{deletingCompany.name}&rdquo;? Это действие нельзя отменить.
                 </p>
               </div>
               <div className="flex gap-3">
