@@ -40,7 +40,7 @@ export default function ProjectCard({ project, onProjectClick, isSelected = fals
       whileTap={
         !isSelected
           ? {
-              scale: 1.02,
+              scale: 0.98,
               transition: { duration: 0.1 },
             }
           : {}
@@ -48,9 +48,9 @@ export default function ProjectCard({ project, onProjectClick, isSelected = fals
     >
       {/* Card */}
       <motion.div
-        className="relative aspect-square w-full rounded-xl bg-[#1F2937] p-3 shadow-lg"
+        className="relative aspect-square w-full rounded-lg sm:rounded-xl bg-[#1F2937] p-2 sm:p-3 shadow-lg"
         style={{
-          borderRadius: "12px",
+          borderRadius: "8px",
         }}
       >
         {/* Donut Chart */}
@@ -62,7 +62,7 @@ export default function ProjectCard({ project, onProjectClick, isSelected = fals
             }}
             transition={{ duration: 0.3 }}
           >
-            <div className="h-16 w-16">
+            <div className="h-12 w-12 sm:h-16 sm:w-16">
               <DonutChart
                 newRequests={safeProject.newRequests}
                 accepted={safeProject.accepted}
@@ -75,7 +75,7 @@ export default function ProjectCard({ project, onProjectClick, isSelected = fals
 
           {/* Project Name */}
           <motion.h3
-            className="text-center text-sm font-medium text-[#E5E7EB] font-inter line-clamp-2"
+            className="text-center text-xs sm:text-sm font-medium text-[#E5E7EB] font-inter line-clamp-2 mt-1 sm:mt-2"
             animate={{
               scale: isHovered && !isSelected ? 1.05 : 1,
             }}

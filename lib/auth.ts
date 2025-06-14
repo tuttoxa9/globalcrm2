@@ -1,5 +1,6 @@
 import { signInWithEmailAndPassword, signOut as firebaseSignOut, onAuthStateChanged, type User } from "firebase/auth"
 import { auth } from "./firebase"
+import { clearCredentials } from "./storage"
 
 export const signIn = async (email: string, password: string) => {
   try {
@@ -13,6 +14,8 @@ export const signIn = async (email: string, password: string) => {
 export const signOut = async () => {
   try {
     await firebaseSignOut(auth)
+    // Очищаем сохраненные учетные данные при выходе
+    clearCredentials()
     return { error: null }
   } catch (error: any) {
     return { error: error.message }

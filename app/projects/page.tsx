@@ -7,6 +7,7 @@ import BackgroundBlob from "@/components/background-blob"
 import ProjectCard from "@/components/project-card"
 import CreateProjectModal from "@/components/create-project-modal"
 import CreateCompanyModal from "@/components/create-company-modal"
+import MobileNav from "@/components/mobile-nav"
 import { useAuth } from "@/hooks/useAuth"
 import { signOut } from "@/lib/auth"
 import { getProjects, type Project } from "@/lib/firestore"
@@ -257,7 +258,7 @@ export default function ProjectsPage() {
           >
             {/* Header */}
             <motion.header
-              className="flex items-center justify-between px-6 py-4"
+              className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -265,48 +266,58 @@ export default function ProjectsPage() {
             >
               <div className="text-lg font-light text-[#E5E7EB] font-montserrat">
                 MNG
-                {user && <span className="ml-2 text-sm text-[#6B7280]">({user.email})</span>}
+                {user && <span className="ml-2 text-xs sm:text-sm text-[#6B7280] hidden sm:inline">({user.email})</span>}
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
+                {/* Desktop Navigation */}
                 {user && (
                   <>
                     <button
                       onClick={() => router.push("/companies")}
-                      className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                      className="hidden sm:flex items-center gap-1 sm:gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
                     >
                       <Building2 className="h-4 w-4" />
-                      <span className="font-inter text-sm">Компании</span>
+                      <span className="font-inter text-xs sm:text-sm">Компании</span>
                     </button>
                     <button
                       onClick={() => setIsCreateCompanyModalOpen(true)}
-                      className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                      className="hidden md:flex items-center gap-1 sm:gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
                     >
                       <Plus className="h-4 w-4" />
-                      <span className="font-inter text-sm">Новая компания</span>
+                      <span className="font-inter text-xs sm:text-sm">Новая компания</span>
                     </button>
                     <button
                       onClick={() => setIsCreateModalOpen(true)}
-                      className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                      className="hidden sm:flex items-center gap-1 sm:gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
                     >
                       <Plus className="h-4 w-4" />
-                      <span className="font-inter text-sm">Новый проект</span>
+                      <span className="font-inter text-xs sm:text-sm">Новый проект</span>
                     </button>
                   </>
                 )}
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                  className="hidden sm:flex items-center gap-1 sm:gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span className="font-inter text-sm">Выход</span>
+                  <span className="font-inter text-xs sm:text-sm">Выход</span>
                 </button>
+
+                {/* Mobile Navigation */}
+                <MobileNav
+                  user={user}
+                  onCompaniesClick={() => router.push("/companies")}
+                  onCreateCompanyClick={() => setIsCreateCompanyModalOpen(true)}
+                  onCreateProjectClick={() => setIsCreateModalOpen(true)}
+                  onSignOut={handleSignOut}
+                />
               </div>
             </motion.header>
 
             {/* Main Content */}
-            <div className="px-6 pb-6">
+            <div className="px-4 sm:px-6 pb-4 sm:pb-6">
               <motion.h1
-                className="mb-6 text-center text-2xl font-light text-[#E5E7EB] font-montserrat"
+                className="mb-4 sm:mb-6 text-center text-xl sm:text-2xl font-light text-[#E5E7EB] font-montserrat"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
@@ -316,7 +327,7 @@ export default function ProjectsPage() {
               </motion.h1>
 
               {/* Projects Grid */}
-              <div className="mx-auto grid max-w-4xl grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
                 {projects.map((project, index) => (
                   <motion.div
                     key={project.id}
