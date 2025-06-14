@@ -258,7 +258,7 @@ export default function ProjectsPage() {
           >
             {/* Header */}
             <motion.header
-              className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4"
+              className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
@@ -315,9 +315,9 @@ export default function ProjectsPage() {
             </motion.header>
 
             {/* Main Content */}
-            <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+            <div className="px-4 sm:px-6 pb-6 sm:pb-8">
               <motion.h1
-                className="mb-4 sm:mb-6 text-center text-xl sm:text-2xl font-light text-[#E5E7EB] font-montserrat"
+                className="mb-6 sm:mb-8 text-center text-xl sm:text-2xl font-light text-[#E5E7EB] font-montserrat"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
@@ -327,7 +327,7 @@ export default function ProjectsPage() {
               </motion.h1>
 
               {/* Projects Grid */}
-              <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7">
+              <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 sm:gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {projects.map((project, index) => (
                   <motion.div
                     key={project.id}
@@ -351,13 +351,14 @@ export default function ProjectsPage() {
 
               {projects.length === 0 && (
                 <motion.div
-                  className="text-center text-[#6B7280] font-inter"
+                  className="text-center text-[#6B7280] font-inter mt-8"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ delay: 0.3 }}
                 >
-                  У вас пока нет проектов. Создайте первый проект!
+                  <div className="text-base sm:text-lg mb-2">У вас пока нет проектов</div>
+                  <div className="text-sm text-[#9CA3AF]">Создайте первый проект!</div>
                 </motion.div>
               )}
             </div>

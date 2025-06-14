@@ -1,24 +1,32 @@
-# GlobalCRM2 - Список задач
+# Mobile Optimization Todos for GlobalCRM2
 
-## 🔄 В процессе
-- [ ] Адаптировать страницу отдельного проекта под мобильные устройства
+## Current Tasks
+- [x] Clone repository from GitHub
+- [x] Analyze current project structure and identify mobile optimization needs
+- [x] Install dependencies and start development server
+- [x] Optimize mobile navigation menu
+- [x] Optimize project menu for mobile devices
+- [x] Improve popup/modal blocks for mobile
+- [x] Enhance project icon ring display
+- [ ] **IN_PROGRESS**: Test mobile responsiveness across different screen sizes
+- [ ] Apply general mobile UI/UX improvements
+- [ ] Configure Git with provided token for pushing changes
+- [ ] Push optimized code to GitHub
 
-## 📋 Дополнительные улучшения (по желанию)
-- [ ] Добавить свайп-жесты для мобильных устройств
-- [ ] Оптимизировать модальные окна для мобильных
-- [ ] Добавить push-уведомления (PWA функции уже есть)
+## Analysis Phase
+- [ ] Review main layout and navigation components
+- [ ] Identify current mobile-specific components
+- [ ] Check existing responsive design patterns
+- [ ] Test current mobile experience
 
-## ✅ Завершенные задачи
-- [x] Клонировать репозиторий globalcrm2
-- [x] Проанализировать текущую систему аутентификации
-- [x] Установить зависимости и запустить сервер разработки
-- [x] Добавить безопасное сохранение данных входа (localStorage/sessionStorage + шифрование)
-- [x] Реализовать "Remember Me" функциональность
-- [x] Создать версию 1 с улучшенной аутентификацией
-- [x] Настроить токен GitHub для пуша
-- [x] Адаптировать интерфейс под мобильные устройства
-- [x] Оптимизировать размеры элементов для мобильной версии
-- [x] Создать мобильную навигацию с гамбургер-меню
-- [x] Протестировать мобильную адаптацию
-- [x] Создать коммит и отправить изменения в GitHub
-- [x] Создать версию 2 с мобильной адаптацией
+## Optimization Phase
+- [ ] Improve mobile navigation (mobile-nav.tsx)
+- [ ] Optimize project cards for mobile
+- [ ] Enhance popup/modal responsiveness
+- [ ] Improve touch interactions
+- [ ] Optimize icon displays for mobile
+
+## Final Phase
+- [ ] Test all optimizations
+- [ ] Clean up code
+- [ ] Push to GitHub with provided token

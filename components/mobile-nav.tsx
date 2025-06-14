@@ -31,10 +31,10 @@ export default function MobileNav({
       {/* Hamburger Button */}
       <button
         onClick={toggleMenu}
-        className="flex items-center justify-center p-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB] sm:hidden"
+        className="flex items-center justify-center p-3 text-[#6B7280] transition-colors hover:text-[#E5E7EB] sm:hidden rounded-lg active:bg-[#374151]"
         aria-label="Открыть меню"
       >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </button>
 
       {/* Mobile Menu Overlay */}
@@ -47,7 +47,7 @@ export default function MobileNav({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm sm:hidden"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm sm:hidden"
             />
 
             {/* Menu Panel */}
@@ -56,7 +56,7 @@ export default function MobileNav({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 z-50 h-full w-80 max-w-[85vw] bg-[#1F2937] shadow-xl sm:hidden"
+              className="fixed right-0 top-0 z-50 h-full w-72 max-w-[80vw] bg-[#1F2937] shadow-2xl sm:hidden"
             >
               {/* Header */}
               <div className="flex items-center justify-between border-b border-[#374151] p-4">
@@ -65,30 +65,33 @@ export default function MobileNav({
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                  className="p-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB] rounded-lg active:bg-[#374151]"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-6 w-6" />
                 </button>
               </div>
 
               {/* User Info */}
               <div className="border-b border-[#374151] p-4">
-                <div className="text-sm text-[#E5E7EB] font-inter">
+                <div className="text-sm text-[#E5E7EB] font-inter truncate">
                   {user.email}
+                </div>
+                <div className="text-xs text-[#9CA3AF] font-inter mt-1">
+                  Вы вошли в систему
                 </div>
               </div>
 
               {/* Menu Items */}
-              <div className="flex flex-col">
+              <div className="flex flex-col py-2">
                 <button
                   onClick={() => {
                     onCompaniesClick()
                     setIsOpen(false)
                   }}
-                  className="flex items-center gap-3 px-4 py-4 text-left text-[#E5E7EB] transition-colors hover:bg-[#374151] font-inter"
+                  className="flex items-center gap-4 px-6 py-4 text-left text-[#E5E7EB] transition-colors hover:bg-[#374151] active:bg-[#4A5568] font-inter"
                 >
-                  <Building2 className="h-5 w-5" />
-                  Компании
+                  <Building2 className="h-5 w-5 text-[#9CA3AF]" />
+                  <span>Компании</span>
                 </button>
 
                 <button
@@ -96,10 +99,10 @@ export default function MobileNav({
                     onCreateCompanyClick()
                     setIsOpen(false)
                   }}
-                  className="flex items-center gap-3 px-4 py-4 text-left text-[#E5E7EB] transition-colors hover:bg-[#374151] font-inter"
+                  className="flex items-center gap-4 px-6 py-4 text-left text-[#E5E7EB] transition-colors hover:bg-[#374151] active:bg-[#4A5568] font-inter"
                 >
-                  <Plus className="h-5 w-5" />
-                  Новая компания
+                  <Plus className="h-5 w-5 text-[#9CA3AF]" />
+                  <span>Новая компания</span>
                 </button>
 
                 <button
@@ -107,25 +110,28 @@ export default function MobileNav({
                     onCreateProjectClick()
                     setIsOpen(false)
                   }}
-                  className="flex items-center gap-3 px-4 py-4 text-left text-[#E5E7EB] transition-colors hover:bg-[#374151] font-inter"
+                  className="flex items-center gap-4 px-6 py-4 text-left text-[#E5E7EB] transition-colors hover:bg-[#374151] active:bg-[#4A5568] font-inter"
                 >
-                  <Plus className="h-5 w-5" />
-                  Новый проект
+                  <Plus className="h-5 w-5 text-[#9CA3AF]" />
+                  <span>Новый проект</span>
                 </button>
 
-                <div className="border-t border-[#374151] mt-4">
+                <div className="border-t border-[#374151] mt-2 pt-2">
                   <button
                     onClick={() => {
                       onSignOut()
                       setIsOpen(false)
                     }}
-                    className="flex items-center gap-3 px-4 py-4 text-left text-[#EF4444] transition-colors hover:bg-[#374151] font-inter w-full"
+                    className="flex items-center gap-4 px-6 py-4 text-left text-[#EF4444] transition-colors hover:bg-[#374151] active:bg-[#4A5568] font-inter w-full"
                   >
                     <LogOut className="h-5 w-5" />
-                    Выход
+                    <span>Выход</span>
                   </button>
                 </div>
               </div>
+
+              {/* Bottom spacing for safe area */}
+              <div className="h-8"></div>
             </motion.div>
           </>
         )}

@@ -17,8 +17,8 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
   const safeRejected = Math.max(0, Number(rejected) || 0)
 
   const total = safeNewRequests + safeAccepted + safeRejected
-  const radius = 32 // Уменьшено с 45 до 32
-  const strokeWidth = 6 // Уменьшено с 8 до 6
+  const radius = 32
+  const strokeWidth = 8 // Увеличено с 6 до 8 для лучшей видимости на мобильных
   const normalizedRadius = radius - strokeWidth * 2
   const circumference = normalizedRadius * 2 * Math.PI
 
@@ -42,14 +42,15 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
         <motion.div
           className="absolute inset-0 flex items-center justify-center"
           animate={{
-            scale: isHovered ? 1.1 : 1,
+            scale: isHovered ? 1.15 : 1,
           }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
         >
           <span
-            className="text-lg font-bold font-inter text-white" // Уменьшено с text-2xl до text-lg, цвет изменен на белый
+            className="text-lg sm:text-xl font-bold font-inter text-white"
             style={{
-              textShadow: isHovered ? `0 0 10px #ffffff60` : "none",
+              textShadow: isHovered ? `0 0 12px #ffffff80` : "0 0 4px #00000040",
+              filter: isHovered ? "drop-shadow(0 0 8px #ffffff40)" : "none",
             }}
           >
             0
@@ -84,6 +85,9 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
     ? 0
     : -(((newPercentage + acceptedPercentage) / 100) * circumference)
 
+  // Enhanced hover effect radius
+  const hoverRadius = normalizedRadius + 3
+
   return (
     <div className="relative">
       <svg height={radius * 2} width={radius * 2} className="transform -rotate-90">
@@ -100,7 +104,7 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
         {/* Rejected segment */}
         {safeRejected > 0 && (
           <motion.circle
-            stroke="#3B82F6"
+            stroke="#EF4444"
             fill="transparent"
             strokeWidth={strokeWidth}
             strokeDasharray={rejectedStrokeDasharray}
@@ -112,21 +116,25 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
             initial={{ strokeDasharray: rejectedStrokeDasharray }}
             animate={{
               strokeDasharray: isHovered
-                ? `${(rejectedPercentage / 100) * ((normalizedRadius + 2) * 2 * Math.PI)} ${(normalizedRadius + 2) * 2 * Math.PI}`
+                ? `${(rejectedPercentage / 100) * (hoverRadius * 2 * Math.PI)} ${hoverRadius * 2 * Math.PI}`
                 : rejectedStrokeDasharray,
-              r: isHovered ? normalizedRadius + 2 : normalizedRadius,
+              r: isHovered ? hoverRadius : normalizedRadius,
               strokeDashoffset: isHovered
-                ? -((newPercentage + acceptedPercentage) / 100) * ((normalizedRadius + 2) * 2 * Math.PI)
-                : rejectedOffset
+                ? -((newPercentage + acceptedPercentage) / 100) * (hoverRadius * 2 * Math.PI)
+                : rejectedOffset,
+              strokeWidth: isHovered ? strokeWidth + 1 : strokeWidth,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{
+              filter: isHovered ? `drop-shadow(0 0 8px #EF444460)` : "none",
+            }}
           />
         )}
 
         {/* Accepted segment */}
         {safeAccepted > 0 && (
           <motion.circle
-            stroke="#3B82F6"
+            stroke="#10B981"
             fill="transparent"
             strokeWidth={strokeWidth}
             strokeDasharray={acceptedStrokeDasharray}
@@ -138,14 +146,18 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
             initial={{ strokeDasharray: acceptedStrokeDasharray }}
             animate={{
               strokeDasharray: isHovered
-                ? `${(acceptedPercentage / 100) * ((normalizedRadius + 2) * 2 * Math.PI)} ${(normalizedRadius + 2) * 2 * Math.PI}`
+                ? `${(acceptedPercentage / 100) * (hoverRadius * 2 * Math.PI)} ${hoverRadius * 2 * Math.PI}`
                 : acceptedStrokeDasharray,
-              r: isHovered ? normalizedRadius + 2 : normalizedRadius,
+              r: isHovered ? hoverRadius : normalizedRadius,
               strokeDashoffset: isHovered
-                ? -(newPercentage / 100) * ((normalizedRadius + 2) * 2 * Math.PI)
-                : acceptedOffset
+                ? -(newPercentage / 100) * (hoverRadius * 2 * Math.PI)
+                : acceptedOffset,
+              strokeWidth: isHovered ? strokeWidth + 1 : strokeWidth,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            style={{
+              filter: isHovered ? `drop-shadow(0 0 8px #10B98160)` : "none",
+            }}
           />
         )}
 
@@ -164,13 +176,14 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
             initial={{ strokeDasharray: newStrokeDasharray }}
             animate={{
               strokeDasharray: isHovered
-                ? `${(newPercentage / 100) * ((normalizedRadius + 2) * 2 * Math.PI)} ${(normalizedRadius + 2) * 2 * Math.PI}`
+                ? `${(newPercentage / 100) * (hoverRadius * 2 * Math.PI)} ${hoverRadius * 2 * Math.PI}`
                 : newStrokeDasharray,
-              r: isHovered ? normalizedRadius + 2 : normalizedRadius,
+              r: isHovered ? hoverRadius : normalizedRadius,
+              strokeWidth: isHovered ? strokeWidth + 1 : strokeWidth,
             }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
             style={{
-              filter: isHovered ? `drop-shadow(0 0 8px #3B82F660)` : "none",
+              filter: isHovered ? `drop-shadow(0 0 12px #3B82F680)` : "drop-shadow(0 0 4px #3B82F640)",
             }}
           />
         )}
@@ -180,14 +193,15 @@ export default function DonutChart({ newRequests, accepted, rejected, color, isH
       <motion.div
         className="absolute inset-0 flex items-center justify-center"
         animate={{
-          scale: isHovered ? 1.1 : 1,
+          scale: isHovered ? 1.15 : 1,
         }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
       >
         <span
-          className="text-lg font-bold font-inter text-white" // Уменьшено с text-2xl до text-lg, цвет изменен на белый
+          className="text-lg sm:text-xl font-bold font-inter text-white"
           style={{
-            textShadow: isHovered ? `0 0 10px #ffffff60` : "none",
+            textShadow: isHovered ? `0 0 12px #ffffff80` : "0 0 4px #00000040",
+            filter: isHovered ? "drop-shadow(0 0 8px #ffffff40)" : "none",
           }}
         >
           {safeNewRequests}
