@@ -9,7 +9,7 @@ import EditCompanyModal from "@/components/edit-company-modal"
 import { useAuth } from "@/hooks/useAuth"
 import { signOut } from "@/lib/auth"
 import { getCompanies, deleteCompany, type Company } from "@/lib/firestore"
-import { getUnicRequestsByCompanyFlexible, getAllUnicRequestsWithCompanyInfo } from "@/lib/unic-firestore"
+import { getUnicRequestsByCompanyFlexible, getAllUnicRequestsWithCompanyInfo, getAcceptedUnicRequestsByCompanyFlexible } from "@/lib/unic-firestore"
 import { useRouter } from "next/navigation"
 
 export default function CompaniesPage() {
@@ -38,12 +38,12 @@ export default function CompaniesPage() {
           console.log("=== DEBUG: Компании ===")
           console.log(userCompanies.map(c => ({ id: c.id, name: c.name })))
 
-          // Загружаем количество заявок для каждой компании
+          // Загружаем количество ПРИНЯТЫХ заявок для каждой компании
           const counts: Record<string, number> = {}
           await Promise.all(
             userCompanies.map(async (company) => {
-              const requests = await getUnicRequestsByCompanyFlexible(company.id, company.name)
-              console.log(`=== DEBUG: Заявки для компании "${company.name}" (ID: ${company.id}) ===`)
+              const requests = await getAcceptedUnicRequestsByCompanyFlexible(company.id, company.name)
+              console.log(`=== DEBUG: ПРИНЯТЫЕ заявки для компании "${company.name}" (ID: ${company.id}) ===`)
               console.log(requests)
               counts[company.id] = requests.length
             })
@@ -76,11 +76,11 @@ export default function CompaniesPage() {
       const userCompanies = await getCompanies(user.uid)
       setCompanies(userCompanies)
 
-      // Загружаем количество заявок для каждой компании
+      // Загружаем количество ПРИНЯТЫХ заявок для каждой компании
       const counts: Record<string, number> = {}
       await Promise.all(
         userCompanies.map(async (company) => {
-          const requests = await getUnicRequestsByCompanyFlexible(company.id, company.name)
+          const requests = await getAcceptedUnicRequestsByCompanyFlexible(company.id, company.name)
           counts[company.id] = requests.length
         })
       )
@@ -93,11 +93,11 @@ export default function CompaniesPage() {
       const userCompanies = await getCompanies(user.uid)
       setCompanies(userCompanies)
 
-      // Загружаем количество заявок для каждой компании
+      // Загружаем количество ПРИНЯТЫХ заявок для каждой компании
       const counts: Record<string, number> = {}
       await Promise.all(
         userCompanies.map(async (company) => {
-          const requests = await getUnicRequestsByCompanyFlexible(company.id, company.name)
+          const requests = await getAcceptedUnicRequestsByCompanyFlexible(company.id, company.name)
           counts[company.id] = requests.length
         })
       )
@@ -232,7 +232,7 @@ export default function CompaniesPage() {
                         Создана: {company.createdAt.toLocaleDateString()}
                       </p>
                       <p className="text-sm text-[#10B981] font-inter mt-1">
-                        Всего заявок: {requestCounts[company.id] || 0}
+                        Принятых заявок: {requestCounts[company.id] || 0}
                       </p>
                     </div>
                   </div>
