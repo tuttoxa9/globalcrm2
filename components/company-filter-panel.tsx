@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Building2, Search, Download, FileSpreadsheet } from "lucide-react"
 import { getCompanies, type Company } from "@/lib/firestore"
-import { getUnicRequestsByCompanyFlexible, type UnicRequest } from "@/lib/unic-firestore"
+import { getAcceptedUnicRequestsByCompanyFlexible, type UnicRequest } from "@/lib/unic-firestore"
 import { useAuth } from "@/hooks/useAuth"
 import * as XLSX from "xlsx"
 
@@ -33,16 +33,16 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
         const userCompanies = await getCompanies(user.uid)
         setCompanies(userCompanies)
 
-        // Загружаем количество заявок для каждой компании
+        // Загружаем количество ПРИНЯТЫХ заявок для каждой компании
         const counts: Record<string, number> = {}
         await Promise.all(
           userCompanies.map(async (company) => {
             try {
-              const requests = await getUnicRequestsByCompanyFlexible(company.id, company.name)
+              const requests = await getAcceptedUnicRequestsByCompanyFlexible(company.id, company.name)
               counts[company.id] = requests.length
-              console.log(`Company ${company.name} (${company.id}): found ${requests.length} requests`)
+              console.log(`Company ${company.name} (${company.id}): found ${requests.length} ACCEPTED requests`)
             } catch (error) {
-              console.error(`Error loading requests for company ${company.name}:`, error)
+              console.error(`Error loading accepted requests for company ${company.name}:`, error)
               counts[company.id] = 0
             }
           })
@@ -68,12 +68,12 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
 
       setRequestsLoading(true)
       try {
-        const requests = await getUnicRequestsByCompanyFlexible(selectedCompany.id, selectedCompany.name)
-        console.log(`Loading requests for company ${selectedCompany.name} (${selectedCompany.id}): found ${requests.length} requests`)
+        const requests = await getAcceptedUnicRequestsByCompanyFlexible(selectedCompany.id, selectedCompany.name)
+        console.log(`Loading ACCEPTED requests for company ${selectedCompany.name} (${selectedCompany.id}): found ${requests.length} requests`)
         setCompanyRequests(requests)
         setFilteredRequests(requests)
       } catch (error) {
-        console.error("Error loading company requests:", error)
+        console.error("Error loading accepted company requests:", error)
       } finally {
         setRequestsLoading(false)
       }
@@ -135,25 +135,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
     }).format(date)
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new": return "bg-[#3B82F6]"
-      case "accepted": return "bg-[#10B981]"
-      case "rejected": return "bg-[#EF4444]"
-      case "no_answer": return "bg-[#F59E0B]"
-      default: return "bg-[#6B7280]"
-    }
-  }
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "new": return "Новая"
-      case "accepted": return "Принята"
-      case "rejected": return "Отклонена"
-      case "no_answer": return "Не ответили"
-      default: return "Неизвестно"
-    }
-  }
 
   return (
     <AnimatePresence>
@@ -184,7 +166,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                     <Building2 className="h-5 w-5 text-[#3B82F6]" />
                   </div>
                   <h2 className="text-lg font-medium text-[#E5E7EB] font-inter">
-                    Заявки по компаниям
+                    Принятые заявки по компаниям
                   </h2>
                 </div>
                 <button
@@ -226,7 +208,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                               <div className="flex items-center justify-between">
                                 <div className="font-medium">{company.name}</div>
                                 <span className="text-xs bg-[#10B981] text-white px-2 py-1 rounded">
-                                  {requestCounts[company.id] || 0} заявок
+                                  {requestCounts[company.id] || 0} принятых
                                 </span>
                               </div>
                               <div className="text-xs text-[#9CA3AF] mt-1">
@@ -263,7 +245,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                             {selectedCompany.name}
                           </h3>
                           <div className="text-sm text-[#9CA3AF]">
-                            Всего заявок: {companyRequests.length}
+                            Принятых заявок: {companyRequests.length}
                           </div>
                         </div>
 
@@ -275,7 +257,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                               type="text"
                               value={searchQuery}
                               onChange={(e) => setSearchQuery(e.target.value)}
-                              placeholder="Поиск заявок..."
+                              placeholder="Поиск принятых заявок..."
                               className="w-full pl-10 pr-3 py-2 bg-[#374151] text-[#E5E7EB] rounded-lg text-sm outline-none focus:ring-2 focus:ring-[#3B82F6]"
                             />
                           </div>
@@ -289,7 +271,7 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                             </div>
                           ) : filteredRequests.length === 0 ? (
                             <div className="text-center text-[#6B7280] py-8">
-                              {searchQuery ? "Заявки не найдены" : "Нет заявок"}
+                              {searchQuery ? "Принятые заявки не найдены" : "Нет принятых заявок"}
                             </div>
                           ) : (
                             <div className="space-y-3">
@@ -302,8 +284,8 @@ export default function CompanyFilterPanel({ isOpen, onClose }: CompanyFilterPan
                                     <h4 className="text-sm font-medium text-[#E5E7EB] line-clamp-1">
                                       {request.fullName || "Без имени"}
                                     </h4>
-                                    <span className={`px-2 py-1 text-xs rounded text-white ${getStatusColor(request.status)}`}>
-                                      {getStatusText(request.status)}
+                                    <span className="px-2 py-1 text-xs rounded text-white bg-[#10B981]">
+                                      ✅ Принята
                                     </span>
                                   </div>
 

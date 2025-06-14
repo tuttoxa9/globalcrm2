@@ -192,6 +192,52 @@ export const getUnicRequestsByCompanyFlexible = async (companyId: string, compan
   }
 }
 
+// Получение ТОЛЬКО принятых заявок по компании (по ID или названию)
+export const getAcceptedUnicRequestsByCompanyFlexible = async (companyId: string, companyName?: string): Promise<UnicRequest[]> => {
+  try {
+    // Сначала пробуем найти по companyId с фильтром accepted
+    let q = query(collection(db, "unic"), where("companyId", "==", companyId), where("status", "==", "accepted"))
+    let querySnapshot = await getDocs(q)
+
+    // Если ничего не найдено и есть название компании, ищем по названию
+    if (querySnapshot.empty && companyName) {
+      q = query(collection(db, "unic"), where("companyId", "==", companyName), where("status", "==", "accepted"))
+      querySnapshot = await getDocs(q)
+    }
+
+    const requests = querySnapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        fullName: data.fullName || data.clientName || "",
+        phone: data.phone || "",
+        birthDate: data.birthDate || "",
+        status: data.status || "new",
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        source: data.source || "",
+        referrer: data.referrer || "",
+        userAgent: data.userAgent || "",
+        priority: data.priority || "medium",
+        assignedTo: data.assignedTo || "",
+        tags: data.tags || [],
+        companyId: data.companyId || "",
+        title: data.title || data.fullName || "",
+        clientName: data.fullName || data.clientName || "",
+        comment: data.comment || "",
+      }
+    }) as UnicRequest[]
+
+    console.log(`Company ${companyName || companyId}: found ${requests.length} ACCEPTED requests`)
+
+    // Сортируем по дате создания на клиенте
+    return requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+  } catch (error) {
+    console.error("Error getting accepted unic requests by company (flexible):", error)
+    return []
+  }
+}
+
 // Получение заявок по статусу
 export const getUnicRequestsByStatus = async (status: string): Promise<UnicRequest[]> => {
   try {
