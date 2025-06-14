@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowLeft, Phone, Check, XCircle, RefreshCw, TrendingUp, Calculator } from "lucide-react"
+import { ArrowLeft, Phone, Check, XCircle, RefreshCw, TrendingUp, Calculator, Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import DateGroupedRequests from "@/components/date-grouped-requests"
@@ -10,6 +10,7 @@ import ProcessedRequestsPanel from "@/components/processed-requests-panel"
 import AdvancedStatsModal from "@/components/advanced-stats-modal"
 import EnhancedStatsModal from "@/components/enhanced-stats-modal"
 import CalculationPanel from "@/components/calculation-panel"
+import ManualRequestPanel from "@/components/manual-request-panel"
 import { useAuth } from "@/hooks/useAuth"
 import { getProjects, type Project } from "@/lib/firestore"
 import { getUnicRequests, getUnicStatistics, subscribeToUnicRequests, type UnicRequest } from "@/lib/unic-firestore"
@@ -30,6 +31,7 @@ export default function ProjectPage() {
   const [isAdvancedStatsOpen, setIsAdvancedStatsOpen] = useState(false)
   const [isEnhancedStatsOpen, setIsEnhancedStatsOpen] = useState(false)
   const [isCalculationOpen, setIsCalculationOpen] = useState(false)
+  const [isManualRequestOpen, setIsManualRequestOpen] = useState(false)
 
   // Load initial data
   useEffect(() => {
@@ -129,6 +131,11 @@ export default function ProjectPage() {
     loadStatistics()
   }
 
+  const handleRequestAdded = () => {
+    // Reload data after adding a manual request
+    loadUnicData()
+  }
+
   const handleBack = () => {
     router.push("/projects")
   }
@@ -217,6 +224,15 @@ export default function ProjectPage() {
 
         {/* Control Buttons */}
         <div className="p-6 space-y-4 flex-1">
+          <motion.button
+            onClick={() => setIsManualRequestOpen(true)}
+            className="w-full flex items-center gap-3 rounded-lg bg-[#3B82F6] px-4 py-3 text-white transition-all hover:bg-[#2563EB]"
+            whileTap={{ scale: 0.98 }}
+          >
+            <Plus className="h-5 w-5" />
+            <span className="font-inter">Добавить заявку</span>
+          </motion.button>
+
           <motion.button
             onClick={() => setIsEnhancedStatsOpen(true)}
             className="w-full flex items-center gap-3 rounded-lg bg-[#4A5568] px-4 py-3 text-[#E5E7EB] transition-all hover:bg-[#374151]"
@@ -407,6 +423,14 @@ export default function ProjectPage() {
         isOpen={isCalculationOpen}
         onClose={() => setIsCalculationOpen(false)}
         requests={requests}
+      />
+
+      {/* Manual Request Panel */}
+      <ManualRequestPanel
+        isOpen={isManualRequestOpen}
+        onClose={() => setIsManualRequestOpen(false)}
+        projectId={params.id as string}
+        onRequestAdded={handleRequestAdded}
       />
     </div>
   )

@@ -1,13 +1,33 @@
-# Todos for Animation Enhancement
+# План развития CRM системы
 
-## Tasks
-- [completed] Add smooth expand/collapse animation for date groups
-- [completed] Add stagger animation for individual request cards
-- [completed] Test animations for smooth UX
-- [in_progress] Commit and push changes with provided token
+## Основные задачи для реализации
 
-## Animation Requirements
-- Simple, minimalistic but beautiful animation
-- Smooth expand/collapse for date groups
-- Staggered reveal of request cards
-- Maintain existing functionality
+### 1. Добавление функционала компаний
+- [x] Создать интерфейс Company в lib/firestore.ts
+- [x] Добавить CRUD операции для компаний
+- [x] Создать модальное окно для создания компаний
+- [x] Добавить кнопку создания компании в шапку
+
+### 2. Добавление ручного создания заявок
+- [x] Расширить интерфейс Request добавив поля: ФИО, номер телефона, дата рождения
+- [x] Создать компонент для ручного добавления заявок (боковая панель слева)
+- [x] Реализовать форму с валидацией полей
+
+### 3. Связь заявок с компаниями
+- [x] Добавить поле companyId в интерфейс Request
+- [x] При принятии заявки добавить выбор компании
+- [x] Обновить компоненты для отображения связи заявка-компания
+
+### 4. Фильтрация по компаниям
+- [ ] Добавить фильтр для просмотра заявок по компаниям
+- [ ] Реализовать поиск в заявках компании
+- [ ] Обновить UI для отображения фильтров
+
+### 5. Экспорт в Excel
+- [ ] Установить библиотеку для экспорта Excel
+- [ ] Реализовать экспорт заявок по компаниям
+- [ ] Добавить кнопки экспорта в интерфейс
+
+### 6. Git интеграция
+- [ ] Настроить git push с предоставленным токеном
+- [ ] Создать финальный коммит с изменениями

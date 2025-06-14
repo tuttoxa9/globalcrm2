@@ -1,11 +1,12 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { LogOut, Plus } from "lucide-react"
+import { LogOut, Plus, Building2 } from "lucide-react"
 import { useState, useEffect } from "react"
 import BackgroundBlob from "@/components/background-blob"
 import ProjectCard from "@/components/project-card"
 import CreateProjectModal from "@/components/create-project-modal"
+import CreateCompanyModal from "@/components/create-company-modal"
 import { useAuth } from "@/hooks/useAuth"
 import { signOut } from "@/lib/auth"
 import { getProjects, type Project } from "@/lib/firestore"
@@ -98,6 +99,7 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [projectsLoading, setProjectsLoading] = useState(true)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isCreateCompanyModalOpen, setIsCreateCompanyModalOpen] = useState(false)
   const [isPageLoading, setIsPageLoading] = useState(true)
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [isTransitioning, setIsTransitioning] = useState(false)
@@ -188,6 +190,11 @@ export default function ProjectsPage() {
     setProjects(projectsToShow)
   }
 
+  const handleCompanyCreated = () => {
+    // Компании созданы, можно просто закрыть модальное окно
+    // В будущем здесь может быть дополнительная логика
+  }
+
   const handleProjectClick = (project: Project, element: HTMLElement) => {
     // Получаем точную позицию карточки
     const rect = element.getBoundingClientRect()
@@ -262,13 +269,22 @@ export default function ProjectsPage() {
               </div>
               <div className="flex items-center gap-4">
                 {user && (
-                  <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#2D3748]"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span className="font-inter text-sm">Новый проект</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => setIsCreateCompanyModalOpen(true)}
+                      className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                    >
+                      <Building2 className="h-4 w-4" />
+                      <span className="font-inter text-sm">Новая компания</span>
+                    </button>
+                    <button
+                      onClick={() => setIsCreateModalOpen(true)}
+                      className="flex items-center gap-2 text-[#6B7280] transition-colors hover:text-[#E5E7EB]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="font-inter text-sm">Новый проект</span>
+                    </button>
+                  </>
                 )}
                 <button
                   onClick={handleSignOut}
@@ -412,6 +428,13 @@ export default function ProjectsPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onProjectCreated={handleProjectCreated}
+      />
+
+      {/* Create Company Modal */}
+      <CreateCompanyModal
+        isOpen={isCreateCompanyModalOpen}
+        onClose={() => setIsCreateCompanyModalOpen(false)}
+        onCompanyCreated={handleCompanyCreated}
       />
     </div>
   )

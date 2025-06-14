@@ -2,22 +2,11 @@
 
 import { motion } from "framer-motion"
 import RequestCard from "./request-card"
-
-interface Request {
-  id: string
-  projectId: string
-  title: string
-  clientName: string
-  phone: string
-  comment: string
-  status: "new" | "accepted" | "rejected"
-  createdAt: Date
-  updatedAt: Date
-}
+import { type Request } from "@/lib/firestore"
 
 interface KanbanBoardProps {
   requests: Request[]
-  onRequestStatusChange: (requestId: string, newStatus: "new" | "accepted" | "rejected") => void
+  onRequestStatusChange: (requestId: string, newStatus: "new" | "accepted" | "rejected", companyId?: string) => void
   projectColor: string
 }
 

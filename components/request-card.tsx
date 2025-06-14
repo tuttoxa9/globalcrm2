@@ -1,26 +1,20 @@
 "use client"
 
-import { Calendar, MessageCircle, Phone, Check, X, PhoneOff } from "lucide-react"
-
-interface Request {
-  id: string
-  projectId: string
-  title: string
-  clientName: string
-  phone: string
-  comment: string
-  status: "new" | "accepted" | "rejected"
-  createdAt: Date
-  updatedAt: Date
-}
+import { useState } from "react"
+import { Calendar, MessageCircle, Phone, Check, X, PhoneOff, User, Building2 } from "lucide-react"
+import { type Request } from "@/lib/firestore"
+import CompanySelectModal from "./company-select-modal"
 
 interface RequestCardProps {
   request: Request
   columnColor: string
-  onStatusChange: (requestId: string, newStatus: "new" | "accepted" | "rejected") => void
+  onStatusChange: (requestId: string, newStatus: "new" | "accepted" | "rejected", companyId?: string) => void
 }
 
 export default function RequestCard({ request, columnColor, onStatusChange }: RequestCardProps) {
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false)
+  const [acceptLoading, setAcceptLoading] = useState(false)
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("ru-RU", {
       day: "2-digit",
@@ -31,7 +25,23 @@ export default function RequestCard({ request, columnColor, onStatusChange }: Re
   }
 
   const handleAccept = () => {
-    onStatusChange(request.id, "accepted")
+    if (request.status === "new") {
+      // Если заявка новая, сначала показываем выбор компании
+      setIsCompanyModalOpen(true)
+    } else {
+      // Если заявка уже принята, просто меняем статус
+      onStatusChange(request.id, "accepted")
+    }
+  }
+
+  const handleCompanySelect = async (companyId: string) => {
+    setAcceptLoading(true)
+    try {
+      await onStatusChange(request.id, "accepted", companyId)
+    } finally {
+      setAcceptLoading(false)
+      setIsCompanyModalOpen(false)
+    }
   }
 
   const handleReject = () => {
@@ -56,26 +66,51 @@ export default function RequestCard({ request, columnColor, onStatusChange }: Re
         {/* Title */}
         <h3 className="mb-1 text-sm font-medium text-[#E5E7EB] font-inter line-clamp-1">{request.title}</h3>
 
-        {/* Client Name */}
-        <div className="mb-2 text-base font-medium text-[#F7FAFC] font-inter line-clamp-1">{request.clientName}</div>
+        {/* Full Name (if available) */}
+        {request.fullName && (
+          <div className="mb-2 flex items-center gap-1 text-xs text-[#CBD5E0]">
+            <User className="h-3 w-3 flex-shrink-0" />
+            <span className="font-inter truncate">{request.fullName}</span>
+          </div>
+        )}
 
         {/* Phone and Date */}
         <div className="mb-2 flex flex-col space-y-1">
-          <div className="flex items-center gap-1 text-xs text-[#CBD5E0]">
-            <Phone className="h-3 w-3 flex-shrink-0" />
-            <span className="font-inter truncate">{request.phone}</span>
-          </div>
+          {request.phoneNumber && (
+            <div className="flex items-center gap-1 text-xs text-[#CBD5E0]">
+              <Phone className="h-3 w-3 flex-shrink-0" />
+              <span className="font-inter truncate">{request.phoneNumber}</span>
+            </div>
+          )}
           <div className="flex items-center gap-1 text-xs text-[#CBD5E0]">
             <Calendar className="h-3 w-3 flex-shrink-0" />
             <span className="font-inter">{formatDate(request.createdAt)}</span>
           </div>
         </div>
 
-        {/* Comment */}
-        {request.comment && (
+        {/* Birth Date (if available) */}
+        {request.birthDate && (
+          <div className="mb-2 flex items-center gap-1 text-xs text-[#A0AEC0]">
+            <Calendar className="h-3 w-3 flex-shrink-0" />
+            <span className="font-inter">
+              Дата рождения: {new Intl.DateTimeFormat("ru-RU").format(request.birthDate)}
+            </span>
+          </div>
+        )}
+
+        {/* Description */}
+        {request.description && (
           <div className="mb-2 flex items-start gap-1 text-xs text-[#A0AEC0]">
             <MessageCircle className="mt-0.5 h-3 w-3 flex-shrink-0" />
-            <p className="font-inter leading-relaxed line-clamp-2">{request.comment}</p>
+            <p className="font-inter leading-relaxed line-clamp-2">{request.description}</p>
+          </div>
+        )}
+
+        {/* Company (if assigned) */}
+        {request.companyId && request.status === "accepted" && (
+          <div className="mb-2 flex items-center gap-1 text-xs text-[#10B981]">
+            <Building2 className="h-3 w-3 flex-shrink-0" />
+            <span className="font-inter">Назначено в компанию</span>
           </div>
         )}
 
@@ -109,6 +144,14 @@ export default function RequestCard({ request, columnColor, onStatusChange }: Re
           </button>
         </div>
       </div>
+
+      {/* Company Selection Modal */}
+      <CompanySelectModal
+        isOpen={isCompanyModalOpen}
+        onClose={() => setIsCompanyModalOpen(false)}
+        onCompanySelect={handleCompanySelect}
+        loading={acceptLoading}
+      />
     </div>
   )
 }
