@@ -110,7 +110,7 @@ export const getUnicRequests = async (): Promise<UnicRequest[]> => {
   }
 }
 
-// Получение заявок по компании
+// Получение заявок по компании (оригинальная функция)
 export const getUnicRequestsByCompany = async (companyId: string): Promise<UnicRequest[]> => {
   try {
     const q = query(collection(db, "unic"), where("companyId", "==", companyId), orderBy("createdAt", "desc"))
@@ -139,6 +139,47 @@ export const getUnicRequestsByCompany = async (companyId: string): Promise<UnicR
     }) as UnicRequest[]
   } catch (error) {
     console.error("Error getting unic requests by company:", error)
+    return []
+  }
+}
+
+// Получение заявок по компании (по ID или названию)
+export const getUnicRequestsByCompanyFlexible = async (companyId: string, companyName?: string): Promise<UnicRequest[]> => {
+  try {
+    // Сначала пробуем найти по companyId
+    let q = query(collection(db, "unic"), where("companyId", "==", companyId), orderBy("createdAt", "desc"))
+    let querySnapshot = await getDocs(q)
+
+    // Если ничего не найдено и есть название компании, ищем по названию
+    if (querySnapshot.empty && companyName) {
+      q = query(collection(db, "unic"), where("companyId", "==", companyName), orderBy("createdAt", "desc"))
+      querySnapshot = await getDocs(q)
+    }
+
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        fullName: data.fullName || data.clientName || "",
+        phone: data.phone || "",
+        birthDate: data.birthDate || "",
+        status: data.status || "new",
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+        source: data.source || "",
+        referrer: data.referrer || "",
+        userAgent: data.userAgent || "",
+        priority: data.priority || "medium",
+        assignedTo: data.assignedTo || "",
+        tags: data.tags || [],
+        companyId: data.companyId || "",
+        title: data.title || data.fullName || "",
+        clientName: data.fullName || data.clientName || "",
+        comment: data.comment || "",
+      }
+    }) as UnicRequest[]
+  } catch (error) {
+    console.error("Error getting unic requests by company (flexible):", error)
     return []
   }
 }
@@ -405,5 +446,24 @@ export const getUnicStatistics = async (): Promise<UnicStatistics | null> => {
   } catch (error) {
     console.error("Error getting unic statistics:", error)
     return null
+  }
+}
+
+// Отладочная функция для получения всех заявок с их companyId
+export const getAllUnicRequestsWithCompanyInfo = async (): Promise<Array<{id: string, fullName: string, companyId: string}>> => {
+  try {
+    const q = query(collection(db, "unic"), orderBy("createdAt", "desc"))
+    const querySnapshot = await getDocs(q)
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data()
+      return {
+        id: doc.id,
+        fullName: data.fullName || data.clientName || "",
+        companyId: data.companyId || "",
+      }
+    })
+  } catch (error) {
+    console.error("Error getting all unic requests with company info:", error)
+    return []
   }
 }

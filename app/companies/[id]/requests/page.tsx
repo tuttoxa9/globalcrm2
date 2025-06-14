@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import BackgroundBlob from "@/components/background-blob"
 import { useAuth } from "@/hooks/useAuth"
-import { getUnicRequestsByCompany, type UnicRequest } from "@/lib/unic-firestore"
+import { getUnicRequestsByCompanyFlexible, type UnicRequest } from "@/lib/unic-firestore"
 import { getCompanies, type Company } from "@/lib/firestore"
 
 export default function CompanyRequestsPage() {
@@ -30,7 +30,7 @@ export default function CompanyRequestsPage() {
           setCompany(currentCompany || null)
 
           // Загружаем заявки компании
-          const companyRequests = await getUnicRequestsByCompany(companyId as string)
+          const companyRequests = await getUnicRequestsByCompanyFlexible(companyId as string, currentCompany?.name)
           setRequests(companyRequests)
         }
       } catch (error) {
