@@ -113,9 +113,9 @@ export const getUnicRequests = async (): Promise<UnicRequest[]> => {
 // Получение заявок по компании (оригинальная функция)
 export const getUnicRequestsByCompany = async (companyId: string): Promise<UnicRequest[]> => {
   try {
-    const q = query(collection(db, "unic"), where("companyId", "==", companyId), orderBy("createdAt", "desc"))
+    const q = query(collection(db, "unic"), where("companyId", "==", companyId))
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => {
+    const requests = querySnapshot.docs.map((doc) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -137,6 +137,9 @@ export const getUnicRequestsByCompany = async (companyId: string): Promise<UnicR
         comment: data.comment || "",
       }
     }) as UnicRequest[]
+
+    // Сортируем по дате создания на клиенте
+    return requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   } catch (error) {
     console.error("Error getting unic requests by company:", error)
     return []
@@ -147,16 +150,16 @@ export const getUnicRequestsByCompany = async (companyId: string): Promise<UnicR
 export const getUnicRequestsByCompanyFlexible = async (companyId: string, companyName?: string): Promise<UnicRequest[]> => {
   try {
     // Сначала пробуем найти по companyId
-    let q = query(collection(db, "unic"), where("companyId", "==", companyId), orderBy("createdAt", "desc"))
+    let q = query(collection(db, "unic"), where("companyId", "==", companyId))
     let querySnapshot = await getDocs(q)
 
     // Если ничего не найдено и есть название компании, ищем по названию
     if (querySnapshot.empty && companyName) {
-      q = query(collection(db, "unic"), where("companyId", "==", companyName), orderBy("createdAt", "desc"))
+      q = query(collection(db, "unic"), where("companyId", "==", companyName))
       querySnapshot = await getDocs(q)
     }
 
-    return querySnapshot.docs.map((doc) => {
+    const requests = querySnapshot.docs.map((doc) => {
       const data = doc.data()
       return {
         id: doc.id,
@@ -178,6 +181,9 @@ export const getUnicRequestsByCompanyFlexible = async (companyId: string, compan
         comment: data.comment || "",
       }
     }) as UnicRequest[]
+
+    // Сортируем по дате создания на клиенте
+    return requests.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   } catch (error) {
     console.error("Error getting unic requests by company (flexible):", error)
     return []
@@ -452,7 +458,7 @@ export const getUnicStatistics = async (): Promise<UnicStatistics | null> => {
 // Отладочная функция для получения всех заявок с их companyId
 export const getAllUnicRequestsWithCompanyInfo = async (): Promise<Array<{id: string, fullName: string, companyId: string}>> => {
   try {
-    const q = query(collection(db, "unic"), orderBy("createdAt", "desc"))
+    const q = query(collection(db, "unic"))
     const querySnapshot = await getDocs(q)
     return querySnapshot.docs.map((doc) => {
       const data = doc.data()
