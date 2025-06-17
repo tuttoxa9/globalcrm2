@@ -1,32 +1,17 @@
-# Mobile Optimization Todos for GlobalCRM2
+# Задачи по клонированию GlobalCRM2 и добавлению данных
 
-## Current Tasks
-- [x] Clone repository from GitHub
-- [x] Analyze current project structure and identify mobile optimization needs
-- [x] Install dependencies and start development server
-- [x] Optimize mobile navigation menu
-- [x] Optimize project menu for mobile devices
-- [x] Improve popup/modal blocks for mobile
-- [x] Enhance project icon ring display
-- [x] Test mobile responsiveness across different screen sizes
-- [x] Apply general mobile UI/UX improvements
-- [x] Configure Git with provided token for pushing changes
-- [x] Push optimized code to GitHub
+## Текущие задачи
+1. [completed] Создать скрипт для добавления людей из таблицы в базу данных
+2. [completed] Создать компании "Грин" и "БлэкБокс" если их еще нет
+3. [completed] Добавить всех 25 человек как запросы (requests) в базу данных
+4. [completed] Сгенерировать случайные даты рождения для всех
+5. [completed] Создать API endpoint для импорта данных
+6. [completed] Создать веб-интерфейс для импорта данных
+7. [in_progress] Тестирование импорта данных через веб-интерфейс
 
-## Analysis Phase
-- [ ] Review main layout and navigation components
-- [ ] Identify current mobile-specific components
-- [ ] Check existing responsive design patterns
-- [ ] Test current mobile experience
-
-## Optimization Phase
-- [ ] Improve mobile navigation (mobile-nav.tsx)
-- [ ] Optimize project cards for mobile
-- [ ] Enhance popup/modal responsiveness
-- [ ] Improve touch interactions
-- [ ] Optimize icon displays for mobile
-
-## Final Phase
-- [ ] Test all optimizations
-- [ ] Clean up code
-- [ ] Push to GitHub with provided token
+## Данные для добавления
+25 человек из таблицы:
+- 21 человек в компанию "Green" (Грин)
+- 4 человека в компанию "Black Box" (БлэкБокс)
+- Даты обращения: 10.06.2025, 11.06.2025, 12.06.2025
+- Даты рождения: генерировать случайно
